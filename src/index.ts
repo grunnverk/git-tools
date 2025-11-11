@@ -53,7 +53,6 @@ export {
     getLinkedDependencies,
     getLinkCompatibilityProblems,
     getLinkProblems,
-    isNpmLinked,
-    getBranchNameForVersion
+    isNpmLinked
 } from './git';
 
