@@ -17,7 +17,7 @@ function isValidGitRemoteName(remote: string): boolean {
     return typeof remote === 'string'
         && remote.length > 0
         && !remote.startsWith('-')
-        && /^[A-Za-z0-9._\/-]+$/.test(remote);
+        && /^[A-Za-z0-9._/-]+$/.test(remote);
 }
 
 /**
