@@ -1,5 +1,5 @@
 import { getLogger } from './logger';
-import { run, runSecure, validateGitRef } from './child';
+import { run, runSecure, validateGitRef, validateFilePath } from './child';
 import fs from 'fs/promises';
 import path from 'path';
 import { exec } from 'child_process';
@@ -1192,8 +1192,6 @@ export async function stageFiles(files: string[]): Promise<void> {
     }
 
     // Validate all file paths to prevent injection
-    // Note: validateFilePath is exported from child.ts
-    const { validateFilePath } = await import('./child');
     for (const file of files) {
         if (!validateFilePath(file)) {
             throw new Error(`Invalid file path: ${file}`);
@@ -1213,6 +1211,7 @@ export async function stageFiles(files: string[]): Promise<void> {
 
 /**
  * Unstage all currently staged files
+ * Handles both normal repos (with commits) and fresh repos (no commits yet)
  * @throws {Error} if git command fails
  */
 export async function unstageAll(): Promise<void> {
@@ -1221,7 +1220,38 @@ export async function unstageAll(): Promise<void> {
     logger.debug('Unstaging all files...');
 
     try {
-        await runSecure('git', ['reset', 'HEAD']);
+        // Check if HEAD exists (repo has commits)
+        const hasHead = await isValidGitRefSilent('HEAD');
+
+        if (hasHead) {
+            // Normal case: repo has commits, use git reset HEAD
+            await runSecure('git', ['reset', 'HEAD']);
+        } else {
+            // Fresh repo with no commits: use git rm --cached
+            // First get the list of staged files
+            const { stdout } = await runSecure('git', [
+                'diff',
+                '--cached',
+                '--name-only'
+            ]);
+
+            const stagedFiles = stdout
+                .trim()
+                .split('\n')
+                .filter(line => line.length > 0);
+
+            if (stagedFiles.length > 0) {
+                // Validate file paths to prevent injection
+                for (const file of stagedFiles) {
+                    if (!validateFilePath(file)) {
+                        throw new Error(`Invalid file path: ${file}`);
+                    }
+                }
+
+                // Use git rm --cached to unstage files in a fresh repo
+                await runSecure('git', ['rm', '--cached', '--', ...stagedFiles]);
+            }
+        }
         logger.debug('Successfully unstaged all files');
     } catch (error: any) {
         throw new Error(`Failed to unstage files: ${error.message}`);
