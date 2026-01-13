@@ -23,9 +23,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
       - name: Install dependencies
-        run: npm ci --verbose --foreground-scripts
+        run: |
+          # Use public registry (package-lock.json is gitignored to avoid Walmart registry refs)
+          npm config set registry https://registry.npmjs.org/
+          npm install --verbose --foreground-scripts
         timeout-minutes: 10
       - run: npm run lint
       - run: npm run build
