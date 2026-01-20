@@ -123,6 +123,7 @@ export async function runSecure(
 
 /**
  * Securely executes a command with inherited stdio (no shell injection risk)
+ * NOTE: When running as MCP server, stdio is forced to 'pipe' to prevent interference with MCP protocol
  */
 export async function runSecureWithInheritedStdio(
     command: string,
@@ -131,15 +132,49 @@ export async function runSecureWithInheritedStdio(
 ): Promise<void> {
     const logger = getLogger();
 
+    // When running as MCP server, we cannot use stdio: 'inherit' as it interferes with the MCP protocol
+    // Instead, we capture output and log it
+    const isMcpServer = process.env.KODRDRIV_MCP_SERVER === 'true';
+    const useInheritedStdio = !isMcpServer && options.stdio !== 'pipe';
+
     return new Promise((resolve, reject) => {
-        logger.verbose(`Executing command securely with inherited stdio: ${command} ${args.join(' ')}`);
+        logger.verbose(`Executing command securely with ${useInheritedStdio ? 'inherited' : 'piped'} stdio: ${command} ${args.join(' ')}`);
         logger.verbose(`Working directory: ${options?.cwd || process.cwd()}`);
 
-        const child = spawn(command, args, {
+        const spawnOpts: child_process.SpawnOptions = {
             ...options,
             shell: false, // CRITICAL: Never use shell for user input
-            stdio: 'inherit'
-        });
+            stdio: useInheritedStdio ? 'inherit' : 'pipe'
+        };
+
+        const child = spawn(command, args, spawnOpts);
+
+        // If we're capturing output (MCP mode or explicit pipe), log it
+        if (!useInheritedStdio) {
+            if (child.stdout) {
+                child.stdout.on('data', (data) => {
+                    const output = data.toString();
+                    // Log each line as it comes in
+                    output.split('\n').forEach((line: string) => {
+                        if (line.trim()) {
+                            logger.info(line.trim());
+                        }
+                    });
+                });
+            }
+
+            if (child.stderr) {
+                child.stderr.on('data', (data) => {
+                    const output = data.toString();
+                    // Log each line as it comes in
+                    output.split('\n').forEach((line: string) => {
+                        if (line.trim()) {
+                            logger.error(line.trim());
+                        }
+                    });
+                });
+            }
+        }
 
         child.on('close', (code) => {
             if (code === 0) {
@@ -242,7 +277,11 @@ export async function runWithDryRunSupport(
         return { stdout: '', stderr: '' };
     }
 
-    if (useInheritedStdio) {
+    // When running as MCP server, never use inherited stdio as it interferes with the protocol
+    const isMcpServer = process.env.KODRDRIV_MCP_SERVER === 'true';
+    const actualUseInheritedStdio = useInheritedStdio && !isMcpServer;
+
+    if (actualUseInheritedStdio) {
         await runWithInheritedStdio(command, options);
         return { stdout: '', stderr: '' }; // No output captured when using inherited stdio
     }
@@ -267,7 +306,11 @@ export async function runSecureWithDryRunSupport(
         return { stdout: '', stderr: '' };
     }
 
-    if (useInheritedStdio) {
+    // When running as MCP server, never use inherited stdio as it interferes with the protocol
+    const isMcpServer = process.env.KODRDRIV_MCP_SERVER === 'true';
+    const actualUseInheritedStdio = useInheritedStdio && !isMcpServer;
+
+    if (actualUseInheritedStdio) {
         await runSecureWithInheritedStdio(command, args, options);
         return { stdout: '', stderr: '' }; // No output captured when using inherited stdio
     }
