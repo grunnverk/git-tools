@@ -497,6 +497,8 @@ describe('child.ts - runWithDryRunSupport function', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        // Clear KODRDRIV_MCP_SERVER to ensure tests run in non-MCP mode
+        delete process.env.KODRDRIV_MCP_SERVER;
         mockPromisify.mockReturnValue(mockExecPromise);
         mockGetLogger.mockReturnValue(mockLogger as any);
     });
@@ -840,6 +842,8 @@ describe('child.ts - runWithInheritedStdio function', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        // Clear KODRDRIV_MCP_SERVER to ensure tests run in non-MCP mode
+        delete process.env.KODRDRIV_MCP_SERVER;
         mockGetLogger.mockReturnValue(mockLogger as any);
     });
 
