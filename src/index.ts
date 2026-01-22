@@ -1,5 +1,5 @@
 /**
- * @eldrforge/git-tools
+ * @grunnverk/git-tools
  *
  * Git utilities for automation - secure process execution and Git operations
  *
