@@ -132,7 +132,7 @@ These remaining gaps are minimal and represent edge cases that are difficult to 
 ---
 
 **Generated**: December 25, 2025
-**Project**: @eldrforge/git-tools v0.1.12-dev.0
+**Project**: @grunnverk/git-tools v0.1.12-dev.0
 **Coverage Tool**: v8
 **Test Framework**: Vitest v4.0.13
 

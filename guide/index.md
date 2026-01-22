@@ -1,4 +1,4 @@
-# @eldrforge/git-tools - Agentic Guide
+# @grunnverk/git-tools - Agentic Guide
 
 ## Purpose
 
@@ -15,7 +15,7 @@ Git utilities for automation. Provides secure process execution and comprehensiv
 ## Usage
 
 ```typescript
-import { executeGitCommand, validateGitInput } from '@eldrforge/git-tools';
+import { executeGitCommand, validateGitInput } from '@grunnverk/git-tools';
 
 // Execute git command safely
 const result = await executeGitCommand('status', ['--short']);
