@@ -1,10 +1,10 @@
-# @eldrforge/git-tools
+# @grunnverk/git-tools
 
 A comprehensive TypeScript library providing secure Git operations, process execution utilities, and NPM link management for automation workflows.
 
 ## Overview
 
-`@eldrforge/git-tools` is a production-ready library designed for building Git automation tools. It provides secure command execution primitives and high-level Git operations with a focus on safety, reliability, and ease of use.
+`@grunnverk/git-tools` is a production-ready library designed for building Git automation tools. It provides secure command execution primitives and high-level Git operations with a focus on safety, reliability, and ease of use.
 
 **Key Features:**
 
@@ -20,7 +20,7 @@ A comprehensive TypeScript library providing secure Git operations, process exec
 ## Installation
 
 ```bash
-npm install @eldrforge/git-tools
+npm install @grunnverk/git-tools
 ```
 
 ### Requirements
@@ -44,7 +44,7 @@ import {
   getGitStatusSummary,
   findPreviousReleaseTag,
   runSecure
-} from '@eldrforge/git-tools';
+} from '@grunnverk/git-tools';
 
 // Get current branch
 const branch = await getCurrentBranch();
@@ -73,7 +73,7 @@ console.log('Recent commits:', stdout);
 All process execution functions prioritize security by preventing shell injection attacks:
 
 ```typescript
-import { runSecure, run } from '@eldrforge/git-tools';
+import { runSecure, run } from '@grunnverk/git-tools';
 
 // ✅ SECURE: Uses argument array, no shell interpretation
 const { stdout } = await runSecure('git', ['log', '--format=%s', userInput]);
@@ -89,7 +89,7 @@ const result = await run(`git log --format=%s ${userInput}`);
 By default, git-tools uses a console-based logger. You can integrate your own logger:
 
 ```typescript
-import { setLogger } from '@eldrforge/git-tools';
+import { setLogger } from '@grunnverk/git-tools';
 import winston from 'winston';
 
 // Create Winston logger
@@ -117,7 +117,7 @@ const branch = await getCurrentBranch(); // Logs via Winston
 Many automation workflows need dry-run capability:
 
 ```typescript
-import { runSecureWithDryRunSupport } from '@eldrforge/git-tools';
+import { runSecureWithDryRunSupport } from '@grunnverk/git-tools';
 
 const isDryRun = process.env.DRY_RUN === 'true';
 
@@ -141,7 +141,7 @@ import {
   localBranchExists,
   remoteBranchExists,
   isBranchInSyncWithRemote
-} from '@eldrforge/git-tools';
+} from '@grunnverk/git-tools';
 
 // Get current branch
 const currentBranch = await getCurrentBranch();
@@ -164,7 +164,7 @@ console.log(`Remote SHA: ${syncStatus.remoteSha}`);
 #### Safe Branch Synchronization
 
 ```typescript
-import { safeSyncBranchWithRemote } from '@eldrforge/git-tools';
+import { safeSyncBranchWithRemote } from '@grunnverk/git-tools';
 
 // Safely sync branch with remote (handles conflicts gracefully)
 const result = await safeSyncBranchWithRemote('main', 'origin');
@@ -184,7 +184,7 @@ if (result.success) {
 #### Get Comprehensive Status
 
 ```typescript
-import { getGitStatusSummary } from '@eldrforge/git-tools';
+import { getGitStatusSummary } from '@grunnverk/git-tools';
 
 const status = await getGitStatusSummary();
 
@@ -212,7 +212,7 @@ if (status.status === 'clean') {
 #### Check if Directory is a Git Repository
 
 ```typescript
-import { isGitRepository } from '@eldrforge/git-tools';
+import { isGitRepository } from '@grunnverk/git-tools';
 
 const isRepo = await isGitRepository('/path/to/directory');
 if (isRepo) {
@@ -229,7 +229,7 @@ if (isRepo) {
 Useful for generating release notes or comparing versions:
 
 ```typescript
-import { findPreviousReleaseTag, getCurrentVersion } from '@eldrforge/git-tools';
+import { findPreviousReleaseTag, getCurrentVersion } from '@grunnverk/git-tools';
 
 // Get current version from package.json
 const currentVersion = await getCurrentVersion();
@@ -250,7 +250,7 @@ if (previousTag) {
 #### Working with Tag Patterns
 
 ```typescript
-import { findPreviousReleaseTag } from '@eldrforge/git-tools';
+import { findPreviousReleaseTag } from '@grunnverk/git-tools';
 
 // Standard version tags (v1.0.0, v1.2.3)
 const prevRelease = await findPreviousReleaseTag('1.2.3', 'v*');
@@ -265,7 +265,7 @@ const prevCustom = await findPreviousReleaseTag('1.2.3', 'release/v*');
 #### Get Default Reference for Comparisons
 
 ```typescript
-import { getDefaultFromRef } from '@eldrforge/git-tools';
+import { getDefaultFromRef } from '@grunnverk/git-tools';
 
 // Intelligently determines the best reference for release comparisons
 // Tries: previous tag -> main -> master -> origin/main -> origin/master
@@ -288,7 +288,7 @@ import {
   isNpmLinked,
   getGloballyLinkedPackages,
   getLinkedDependencies
-} from '@eldrforge/git-tools';
+} from '@grunnverk/git-tools';
 
 // Check if a package is globally linked
 const isLinked = await isNpmLinked('/path/to/my-package');
@@ -306,7 +306,7 @@ console.log('Consuming linked packages:', Array.from(linkedDeps));
 #### Detect Link Compatibility Problems
 
 ```typescript
-import { getLinkCompatibilityProblems } from '@eldrforge/git-tools';
+import { getLinkCompatibilityProblems } from '@grunnverk/git-tools';
 
 // Check for version compatibility issues with linked dependencies
 const problems = await getLinkCompatibilityProblems('/path/to/package');
@@ -328,7 +328,7 @@ if (problems.size > 0) {
 #### Secure Command Execution
 
 ```typescript
-import { runSecure, runSecureWithInheritedStdio } from '@eldrforge/git-tools';
+import { runSecure, runSecureWithInheritedStdio } from '@grunnverk/git-tools';
 
 // Execute and capture output
 const { stdout, stderr } = await runSecure('git', ['status', '--porcelain']);
@@ -343,7 +343,7 @@ await runSecureWithInheritedStdio('git', ['push', 'origin', 'main']);
 Some commands are expected to fail in certain scenarios:
 
 ```typescript
-import { runSecure } from '@eldrforge/git-tools';
+import { runSecure } from '@grunnverk/git-tools';
 
 try {
   // Check if a branch exists without logging errors
@@ -359,7 +359,7 @@ try {
 #### Input Validation
 
 ```typescript
-import { validateGitRef, validateFilePath } from '@eldrforge/git-tools';
+import { validateGitRef, validateFilePath } from '@grunnverk/git-tools';
 
 const userBranch = getUserInput();
 
@@ -383,7 +383,7 @@ if (validateFilePath(userFile)) {
 #### Safe JSON Parsing
 
 ```typescript
-import { safeJsonParse, validatePackageJson } from '@eldrforge/git-tools';
+import { safeJsonParse, validatePackageJson } from '@grunnverk/git-tools';
 
 // Parse JSON with automatic error handling
 try {
@@ -408,7 +408,7 @@ try {
 #### String Validation
 
 ```typescript
-import { validateString, validateHasProperty } from '@eldrforge/git-tools';
+import { validateString, validateHasProperty } from '@grunnverk/git-tools';
 
 // Validate non-empty string
 try {
@@ -436,7 +436,7 @@ import {
   getCurrentVersion,
   findPreviousReleaseTag,
   runSecure
-} from '@eldrforge/git-tools';
+} from '@grunnverk/git-tools';
 
 async function generateReleaseNotes() {
   // Get version range
@@ -473,7 +473,7 @@ generateReleaseNotes().catch(console.error);
 import {
   getGitStatusSummary,
   isBranchInSyncWithRemote
-} from '@eldrforge/git-tools';
+} from '@grunnverk/git-tools';
 
 async function validateBeforePush() {
   const status = await getGitStatusSummary();
@@ -507,7 +507,7 @@ validateBeforePush().catch(console.error);
 import {
   getLinkedDependencies,
   getLinkCompatibilityProblems
-} from '@eldrforge/git-tools';
+} from '@grunnverk/git-tools';
 
 async function checkMonorepoLinks(packageDirs: string[]) {
   for (const packageDir of packageDirs) {
@@ -543,7 +543,7 @@ import {
   getCurrentBranch,
   localBranchExists,
   safeSyncBranchWithRemote
-} from '@eldrforge/git-tools';
+} from '@grunnverk/git-tools';
 
 async function syncMainBranch() {
   const currentBranch = await getCurrentBranch();
