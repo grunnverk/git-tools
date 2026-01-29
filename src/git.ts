@@ -486,12 +486,26 @@ export const isBranchInSyncWithRemote = async (branchName: string, remote: strin
     const logger = getLogger();
 
     try {
-        // Validate inputs first to prevent injection
+        // Validate the remote parameter to prevent command injection
+        if (!isValidGitRemoteName(remote)) {
+            throw new Error(`Invalid remote name: '${remote}'`);
+        }
+
+        // Validate the branch name to prevent option injection (e.g., '--upload-pack=...')
+        if (!isValidGitBranchName(branchName)) {
+            throw new Error(`Invalid branch name: '${branchName}'`);
+        }
+
+        // Validate inputs with additional checks to prevent injection
         if (!validateGitRef(branchName)) {
             throw new Error(`Invalid branch name: ${branchName}`);
         }
         if (!validateGitRef(remote)) {
             throw new Error(`Invalid remote name: ${remote}`);
+        }
+        // Explicitly disallow remotes that look like command-line options (e.g. "--upload-pack")
+        if (remote.startsWith('-')) {
+            throw new Error(`Disallowed remote name (cannot start with '-'): ${remote}`);
         }
 
         // First, fetch latest remote refs without affecting working directory
